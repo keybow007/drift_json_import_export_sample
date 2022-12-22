@@ -23,15 +23,25 @@ class JsonIOManager {
       //JsonString化
       final decodedJsonString = _convertToJson(dbData);
 
+      /*
+      * （ファイルの保存方法：これがちょいややこしい）
+      * Androidの場合：Shareで端末に直接保存できないが、getExternalStorageDirectoriesが使えるのでそこに保存
+      *   （ただし、外部ストレージではあるが、アプリをアンインストールすると消えてしまうので、シェアもしておいた方が無難）
+      * iOSの場合：getExternalStorageDirectoriesが使えないが、Shareで端末に保存できるのでShareさせる
+      * */
+
       //アプリ内のローカルパスにdecodedJsonStringを保存
       //https://docs.flutter.dev/cookbook/persistence/reading-writing-files
-      final localPath = (await getApplicationDocumentsDirectory()).path;
-      final localFile = File("$localPath/my_words.txt");
-      await localFile.writeAsString(decodedJsonString);
+      final filePath = (Platform.isIOS)
+          ? (await getApplicationDocumentsDirectory()).path
+          : (await getExternalStorageDirectory())?.path;
+      final file = File("$filePath/my_words.txt");
+      await file.writeAsString(decodedJsonString);
+
       //ファイルをシェア（保存自体はユーザーにやってもらう）
       //Share.shareFilesは非推奨 => shareXFilesに
       //https://pub.dev/packages/share_plus
-      await Share.shareXFiles([XFile(localFile.path)],
+      await Share.shareXFiles([XFile(file.path)],
           text: "データをエクスポートします", subject: "データのエクスポート @${DateTime.now()} ");
     } on Exception catch (e) {
       //本当はToastはView側で書くべき
@@ -68,11 +78,10 @@ class JsonIOManager {
       final decodedJson = jsonDecode(jsonString) as List<dynamic>;
       //DBに登録
       await insertImportDataToDB(decodedJson);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       //本当はToastはView側で書くべき
       Fluttertoast.showToast(msg: "データのインポートに失敗しました: $e");
     }
-
   }
 
   Future<void> insertImportDataToDB(List<dynamic> decodedJson) async {
@@ -85,8 +94,7 @@ class JsonIOManager {
         //Driftの自動生成コードにfromJsonがある
         await database.addWord(Word.fromJson(mappedElement));
       });
-
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       //本当はToastはView側で書くべき
       Fluttertoast.showToast(msg: "データのインポートに失敗しました: $e");
     }
