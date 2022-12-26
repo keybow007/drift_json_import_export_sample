@@ -24,9 +24,10 @@ class ZipManager {
       final encoder = ZipFileEncoder();
       encoder.create("${appDirectory.path}/output.zip");
       await Future.forEach(files, (File file) => encoder.addFile(file));
-      zipFile = File(encoder.zipPath);
       //zipに書き込むためのメソッド（これを忘れると展開できないzipファイルができてしまう）
       encoder.close();
+      zipFile = File(encoder.zipPath);
+
     } on Exception catch (e) {
       Fluttertoast.showToast(msg: "zipファイル化に失敗しました: ${e.toString()}");
     }
