@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_own_frashcard/db/database.dart';
 import 'package:my_own_frashcard/main.dart';
-import 'package:my_own_frashcard/models/json_io_manager.dart';
+import 'package:my_own_frashcard/models/io_manager.dart';
 import 'package:my_own_frashcard/screens/edit_screen.dart';
 
 class WordListScreen extends StatefulWidget {
@@ -14,7 +16,7 @@ class _WordListScreenState extends State<WordListScreen> {
   List<Word> _wordList = [];
 
   //TODO データのインポート・エクスポート機能追加
-  JsonIOManager jsonIOManager = JsonIOManager();
+  IOManager jsonIOManager = IOManager();
 
   @override
   void initState() {
@@ -29,11 +31,6 @@ class _WordListScreenState extends State<WordListScreen> {
         title: Text("単語一覧"),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.sort),
-            tooltip: "暗記済みの単語を下になるようにソート",
-            onPressed: () => _sortWords(),
-          ),
           //TODO データのインポート・エクスポート機能追加
           IconButton(
             icon: Icon(Icons.upload),
@@ -61,25 +58,23 @@ class _WordListScreenState extends State<WordListScreen> {
 
   _addNewWord() {
     Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => EditScreen(
-                  status: EditStatus.ADD,
-                )));
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditScreen(),
+      ),
+    );
   }
 
   void _getAllWords() async {
     _wordList = await database.allWords;
-    //for文を使いたいがためだけのコーディング
-    //_wordList = await database.getAllWordsWithStar();
-
     setState(() {});
   }
 
   Widget _wordListWidget() {
     return ListView.builder(
-        itemCount: _wordList.length,
-        itemBuilder: (context, int position) => _wordItem(position));
+      itemCount: _wordList.length,
+      itemBuilder: (context, int position) => _wordItem(position),
+    );
   }
 
   Widget _wordItem(int position) {
@@ -87,21 +82,38 @@ class _WordListScreenState extends State<WordListScreen> {
       elevation: 5.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
       color: Colors.grey.shade700,
-      child: ListTile(
-        title: Text("${_wordList[position].strQuestion}"),
-        subtitle: Text(
-          "${_wordList[position].strAnswer}",
-          style: TextStyle(fontFamily: "Mont"),
-        ),
-        trailing:
-            _wordList[position].isMemorized ? Icon(Icons.check_circle) : null,
-        onTap: () => _editWord(_wordList[position]),
-        onLongPress: () => _deleteWord(_wordList[position]),
+      child: Column(
+        children: [
+          ListTile(
+            title: Text("${_wordList[position].strQuestion}"),
+            subtitle: Text(
+              "${_wordList[position].strAnswer}",
+              style: TextStyle(fontFamily: "Mont"),
+            ),
+            onLongPress: () => _deleteWord(_wordList[position]),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: (_wordList[position].imagePath1 != "")
+                    ? Image.file(File(_wordList[position].imagePath1))
+                    : Container(),
+              ),
+              Expanded(
+                child: (_wordList[position].imagePath2 != "")
+                    ? Image.file(File(_wordList[position].imagePath2))
+                    : Container(),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }
 
   _deleteWord(Word selectedWord) async {
+    //TODO 端末内の画像を削除する処理は省略
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -135,23 +147,6 @@ class _WordListScreenState extends State<WordListScreen> {
     );
   }
 
-  _editWord(Word selectedWord) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditScreen(
-          status: EditStatus.EDIT,
-          word: selectedWord,
-        ),
-      ),
-    );
-  }
-
-  _sortWords() async {
-    _wordList = await database.allWordsSorted;
-    setState(() {});
-  }
-
   //----TODO データのインポート・エクスポート機能追加---------
 
   _exportData() async {
@@ -165,6 +160,4 @@ class _WordListScreenState extends State<WordListScreen> {
     _getAllWords();
     Fluttertoast.showToast(msg: "データのインポートが完了しました");
   }
-
-
 }

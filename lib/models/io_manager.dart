@@ -4,12 +4,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_own_frashcard/db/database.dart';
+import 'package:my_own_frashcard/models/zip_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../main.dart';
 
-class JsonIOManager {
+class IOManager {
+  final ZipManager zipManager = ZipManager();
+
+
   Future<void> exportData() async {
     //データベースからデータを取得
     final dbData = await database.allWords;
@@ -22,7 +26,6 @@ class JsonIOManager {
     try {
       //JsonString化
       final decodedJsonString = _convertToJson(dbData);
-
       /*
       * （ファイルの保存方法：これがちょいややこしい）
       * Androidの場合：Shareで端末に直接保存できないが、getExternalStorageDirectoriesが使えるのでそこに保存
@@ -32,17 +35,27 @@ class JsonIOManager {
 
       //アプリ内のローカルパスにdecodedJsonStringを保存
       //https://docs.flutter.dev/cookbook/persistence/reading-writing-files
-      final filePath = (Platform.isIOS)
+      final dbDataFilePath = (Platform.isIOS)
           ? (await getApplicationDocumentsDirectory()).path
-          : (await getExternalStorageDirectory())?.path;
-      final file = File("$filePath/my_words.txt");
-      await file.writeAsString(decodedJsonString);
+          //: (await getExternalStorageDirectory())?.path;
+          : (await getExternalStorageDirectories(type: StorageDirectory.downloads))?.first.path;
+      final dbDataFile = File("$dbDataFilePath/db_data.txt");
+      await dbDataFile.writeAsString(decodedJsonString);
+
+      //---------------
+      //画像のファイルパス
+      final imageFiles = _getImageFiles(dbData);
+
+      //DBデータと画像群を１つのzipファイルにまとめる
+      final zipFile = await zipManager.encodeZipFile(dbDataFile, imageFiles);
 
       //ファイルをシェア（保存自体はユーザーにやってもらう）
       //Share.shareFilesは非推奨 => shareXFilesに
       //https://pub.dev/packages/share_plus
-      await Share.shareXFiles([XFile(file.path)],
-          text: "データをエクスポートします", subject: "データのエクスポート @${DateTime.now()} ");
+      if (zipFile != null) await Share.shareXFiles([XFile(zipFile.path)],
+          //（注）Googleドライブの場合は「subject」がタイトル（ファイル名）になるので、
+          // ここに拡張子（zip）をいれておかないとダウンロードした際に展開できないみたい
+          text: "データをエクスポートします", subject: "output.zip");
     } on Exception catch (e) {
       //本当はToastはView側で書くべき
       Fluttertoast.showToast(msg: "データのエクスポートに失敗しました: $e");
@@ -99,4 +112,15 @@ class JsonIOManager {
       Fluttertoast.showToast(msg: "データのインポートに失敗しました: $e");
     }
   }
+
+  List<File> _getImageFiles(List<Word> dbData) {
+    var imageFiles = <File>[];
+    dbData.forEach((element) {
+      if (element.imagePath1 != "") imageFiles.add(File(element.imagePath1));
+      if (element.imagePath2 != "") imageFiles.add(File(element.imagePath2));
+    });
+    return imageFiles;
+  }
+
+
 }

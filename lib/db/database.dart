@@ -8,11 +8,14 @@ import 'package:path/path.dart' as p;
 part 'database.g.dart';
 
 class Words extends Table {
+  //Driftで使えるデータ型
+  //https://drift.simonbinder.eu/docs/getting-started/advanced_dart_tables/
   TextColumn get strQuestion => text()();
 
   TextColumn get strAnswer => text()();
 
-  BoolColumn get isMemorized => boolean().withDefault(Constant(false))();
+  TextColumn get imagePath1 => text()();
+  TextColumn get imagePath2 => text()();
 
   @override
   Set<Column> get primaryKey => {strQuestion};
@@ -34,23 +37,7 @@ class MyDatabase extends _$MyDatabase {
   MyDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
-
-  //統合処理
-  //https://drift.simonbinder.eu/docs/advanced-features/migrations/
-  @override
-  MigrationStrategy get migration {
-    return MigrationStrategy(
-      onCreate: (Migrator m) async {
-        await m.createAll();
-      },
-      onUpgrade: (Migrator m, int from, int to) async {
-        if (from < 2) {
-          await m.addColumn(words, words.isMemorized);
-        }
-      },
-    );
-  }
+  int get schemaVersion => 1;
 
   //Create
   Future addWord(Word word) => into(words).insert(word);
@@ -58,51 +45,7 @@ class MyDatabase extends _$MyDatabase {
   //Read
   Future<List<Word>> get allWords => select(words).get();
 
-  //For文を使いたいがためだけのコーディング
-  Future<List<Word>> getAllWordsWithStar() async {
-    var selectedWords = await allWords;
-    var results = <Word>[];
 
-    //3: forEach関数
-    selectedWords.forEach((word) {
-      if (!word.isMemorized) {
-        word = word.copyWith(strQuestion: " ★ " + word.strQuestion);
-      }
-      results.add(word);
-    });
-
-    //2: for-in
-    // for (var word in selectedWords) {
-    //   if (!word.isMemorized) {
-    //     word = word.copyWith(
-    //         strQuestion: " ★ " + word.strQuestion
-    //     );
-    //   }
-    //   results.add(word);
-    // }
-
-    //1: 普通のfor
-    // for (var i = 0; i < selectedWords.length; i++) {
-    //   var word = selectedWords[i];
-    //   if (!word.isMemorized) {
-    //     word = word.copyWith(
-    //       strQuestion: " ★ " + word.strQuestion
-    //     );
-    //   }
-    //   results.add(word);
-    // }
-
-    return results;
-  }
-
-  //Read (暗記済み単語除外）
-  Future<List<Word>> get allWordsExcludedMemorized =>
-      (select(words)..where((table) => table.isMemorized.equals(false))).get();
-
-  //Read(暗記済みが下になるようにソート)
-  Future<List<Word>> get allWordsSorted => (select(words)
-        ..orderBy([(table) => OrderingTerm(expression: table.isMemorized)]))
-      .get();
 
   //Update
   Future updateWord(Word word) => update(words).replace(word);
@@ -115,10 +58,4 @@ class MyDatabase extends _$MyDatabase {
   //DeleteAll
   Future clearDB() => delete(words).go();
 
-//  Future deleteWordB(Word word) {
-//    var deleteStatement = delete(words);
-//    deleteStatement
-//        .where((table) => table.strQuestion.equals(word.strQuestion));
-//    return deleteStatement.go();
-//  }
 }
