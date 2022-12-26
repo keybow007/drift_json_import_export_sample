@@ -89,7 +89,7 @@ class IOManager {
       //https://docs.flutter.dev/cookbook/persistence/reading-writing-files#4-read-data-from-the-file
       final bytes = await importFile.readAsBytes();
       final archives = ZipDecoder().decodeBytes(bytes);
-      //ローカルに保存
+      //ローカルに保存（画像もエクスポート時と同じ場所・名前で保存しておけばいい）
       await Future.forEach(archives, (ArchiveFile archiveFile) async {
         final fileName = archiveFile.name;
         if (archiveFile.isFile) {
