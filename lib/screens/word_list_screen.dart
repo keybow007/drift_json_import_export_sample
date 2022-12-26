@@ -112,8 +112,6 @@ class _WordListScreenState extends State<WordListScreen> {
   }
 
   _deleteWord(Word selectedWord) async {
-    //TODO 端末内の画像を削除する処理は省略
-
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -130,6 +128,8 @@ class _WordListScreenState extends State<WordListScreen> {
             child: Text("はい"),
             onPressed: () async {
               await database.deleteWord(selectedWord);
+              //端末内の画像を削除する処理は省略
+              await deleteImages(selectedWord);
               Fluttertoast.showToast(
                 msg: "削除が完了しました",
                 toastLength: Toast.LENGTH_LONG,
@@ -159,5 +159,18 @@ class _WordListScreenState extends State<WordListScreen> {
     //インポート後にデータ再取得
     _getAllWords();
     Fluttertoast.showToast(msg: "データのインポートが完了しました");
+  }
+
+  Future<void> deleteImages(Word selectedWord) async {
+    final imagePath1 = selectedWord.imagePath1;
+    final imagePath2 = selectedWord.imagePath2;
+
+    if (imagePath1 != "") {
+      await File(imagePath1).delete();
+    }
+    if (imagePath2 != "") {
+      await File(imagePath2).delete();
+    }
+
   }
 }
