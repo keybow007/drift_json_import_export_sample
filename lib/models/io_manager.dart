@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_own_frashcard/db/database.dart';
@@ -12,7 +13,7 @@ import '../main.dart';
 
 class IOManager {
   final ZipManager zipManager = ZipManager();
-
+  final dbDataFileName = "db_data.txt";
 
   Future<void> exportData() async {
     //データベースからデータを取得
@@ -36,10 +37,10 @@ class IOManager {
       //アプリ内のローカルパスにdecodedJsonStringを保存
       //https://docs.flutter.dev/cookbook/persistence/reading-writing-files
       final dbDataFilePath = (Platform.isIOS)
-          ? (await getApplicationDocumentsDirectory()).path
+          ? appDirectory.path
           //: (await getExternalStorageDirectory())?.path;
           : (await getExternalStorageDirectories(type: StorageDirectory.downloads))?.first.path;
-      final dbDataFile = File("$dbDataFilePath/db_data.txt");
+      final dbDataFile = File("$dbDataFilePath/$dbDataFileName");
       await dbDataFile.writeAsString(decodedJsonString);
 
       //---------------
@@ -84,9 +85,22 @@ class IOManager {
     }
     try {
       final importFile = File(filePickerResult.files.single.path!);
-      //インポートしたファイルのデータ読み込み
+      //インポートしたzipファイルのデータ読み込み
       //https://docs.flutter.dev/cookbook/persistence/reading-writing-files#4-read-data-from-the-file
-      final jsonString = await importFile.readAsString();
+      final bytes = await importFile.readAsBytes();
+      final archives = ZipDecoder().decodeBytes(bytes);
+      //ローカルに保存
+      await Future.forEach(archives, (ArchiveFile archiveFile) async {
+        final fileName = archiveFile.name;
+        if (archiveFile.isFile) {
+          final data = archiveFile.content as List<int>;
+          final localFile = File("${appDirectory.path}/$fileName");
+          await localFile.writeAsBytes(data);
+        }
+      });
+      //DBデータの読み取り
+      final dbFile = File("${appDirectory.path}/$dbDataFileName");
+      final jsonString = await dbFile.readAsString();
       //jsonStringを解析（as List<dynamic>>にしないとループ処理ができないがList<Map<String, dynamic>>にすると型違いエラーになる）
       final decodedJson = jsonDecode(jsonString) as List<dynamic>;
       //DBに登録

@@ -5,6 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
+import '../main.dart';
+
 //画像をWebからランダムに取得して、アプリ内のローカルパスに保存
 
 class ImageLoadManager {
@@ -19,8 +21,6 @@ class ImageLoadManager {
     if (response.statusCode == 200) {
       final responseBodyBytes = response.bodyBytes;
 
-      //ローカルパスの取得
-      final appDirectory = await getApplicationDocumentsDirectory();
       //拡張子必要（.jpg）:階層をつけたらダメみたい
       filePath = '${appDirectory.path}/$key$fileIndex.jpg';
       final localFile = File(filePath);

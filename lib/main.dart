@@ -1,10 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_own_frashcard/db/database.dart';
 import 'package:my_own_frashcard/screens/home_screen.dart';
+import 'package:path_provider/path_provider.dart';
 
 late MyDatabase database;
+late Directory appDirectory;
 
-void main(){
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  appDirectory = await getApplicationDocumentsDirectory();
   database = MyDatabase();
   runApp(MyApp());
 }

@@ -9,16 +9,16 @@ import 'package:archive/archive_io.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../main.dart';
+
 
 class ZipManager {
+
   Future<File?> encodeZipFile(File dbDataFile, List<File> imageFiles) async {
     File? zipFile;
 
     final files = [...imageFiles];
     files.add(dbDataFile);
-
-    //ローカルパスの取得
-    final appDirectory = await getApplicationDocumentsDirectory();
 
     try {
       final encoder = ZipFileEncoder();
