@@ -7,6 +7,8 @@ import 'package:my_own_frashcard/main.dart';
 import 'package:my_own_frashcard/models/io_manager.dart';
 import 'package:my_own_frashcard/screens/edit_screen.dart';
 
+import 'package:path/path.dart' as path;
+
 class WordListScreen extends StatefulWidget {
   @override
   _WordListScreenState createState() => _WordListScreenState();
@@ -95,13 +97,13 @@ class _WordListScreenState extends State<WordListScreen> {
           Row(
             children: [
               Expanded(
-                child: (_wordList[position].imagePath1 != "")
-                    ? Image.file(File(_wordList[position].imagePath1))
+                child: (_wordList[position].imageFileName1 != "")
+                    ? Image.file(File(path.join(appDirectory.path, _wordList[position].imageFileName1)))
                     : Container(),
               ),
               Expanded(
-                child: (_wordList[position].imagePath2 != "")
-                    ? Image.file(File(_wordList[position].imagePath2))
+                child: (_wordList[position].imageFileName2 != "")
+                    ? Image.file(File(path.join(appDirectory.path, _wordList[position].imageFileName2)))
                     : Container(),
               ),
             ],
@@ -162,14 +164,14 @@ class _WordListScreenState extends State<WordListScreen> {
   }
 
   Future<void> deleteImages(Word selectedWord) async {
-    final imagePath1 = selectedWord.imagePath1;
-    final imagePath2 = selectedWord.imagePath2;
+    final imageFile1 = selectedWord.imageFileName1;
+    final imageFile2 = selectedWord.imageFileName2;
 
-    if (imagePath1 != "") {
-      await File(imagePath1).delete();
+    if (imageFile1 != "") {
+      await File(path.join(appDirectory.path, imageFile1)).delete();
     }
-    if (imagePath2 != "") {
-      await File(imagePath2).delete();
+    if (imageFile2 != "") {
+      await File(path.join(appDirectory.path, imageFile2)).delete();
     }
 
   }

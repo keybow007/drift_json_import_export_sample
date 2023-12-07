@@ -6,20 +6,20 @@ part of 'database.dart';
 class Word extends DataClass implements Insertable<Word> {
   final String strQuestion;
   final String strAnswer;
-  final String imagePath1;
-  final String imagePath2;
+  final String imageFileName1;
+  final String imageFileName2;
   const Word(
       {required this.strQuestion,
       required this.strAnswer,
-      required this.imagePath1,
-      required this.imagePath2});
+      required this.imageFileName1,
+      required this.imageFileName2});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['str_question'] = Variable<String>(strQuestion);
     map['str_answer'] = Variable<String>(strAnswer);
-    map['image_path1'] = Variable<String>(imagePath1);
-    map['image_path2'] = Variable<String>(imagePath2);
+    map['image_file_name1'] = Variable<String>(imageFileName1);
+    map['image_file_name2'] = Variable<String>(imageFileName2);
     return map;
   }
 
@@ -27,8 +27,8 @@ class Word extends DataClass implements Insertable<Word> {
     return WordsCompanion(
       strQuestion: Value(strQuestion),
       strAnswer: Value(strAnswer),
-      imagePath1: Value(imagePath1),
-      imagePath2: Value(imagePath2),
+      imageFileName1: Value(imageFileName1),
+      imageFileName2: Value(imageFileName2),
     );
   }
 
@@ -38,8 +38,8 @@ class Word extends DataClass implements Insertable<Word> {
     return Word(
       strQuestion: serializer.fromJson<String>(json['strQuestion']),
       strAnswer: serializer.fromJson<String>(json['strAnswer']),
-      imagePath1: serializer.fromJson<String>(json['imagePath1']),
-      imagePath2: serializer.fromJson<String>(json['imagePath2']),
+      imageFileName1: serializer.fromJson<String>(json['imageFileName1']),
+      imageFileName2: serializer.fromJson<String>(json['imageFileName2']),
     );
   }
   @override
@@ -48,90 +48,90 @@ class Word extends DataClass implements Insertable<Word> {
     return <String, dynamic>{
       'strQuestion': serializer.toJson<String>(strQuestion),
       'strAnswer': serializer.toJson<String>(strAnswer),
-      'imagePath1': serializer.toJson<String>(imagePath1),
-      'imagePath2': serializer.toJson<String>(imagePath2),
+      'imageFileName1': serializer.toJson<String>(imageFileName1),
+      'imageFileName2': serializer.toJson<String>(imageFileName2),
     };
   }
 
   Word copyWith(
           {String? strQuestion,
           String? strAnswer,
-          String? imagePath1,
-          String? imagePath2}) =>
+          String? imageFileName1,
+          String? imageFileName2}) =>
       Word(
         strQuestion: strQuestion ?? this.strQuestion,
         strAnswer: strAnswer ?? this.strAnswer,
-        imagePath1: imagePath1 ?? this.imagePath1,
-        imagePath2: imagePath2 ?? this.imagePath2,
+        imageFileName1: imageFileName1 ?? this.imageFileName1,
+        imageFileName2: imageFileName2 ?? this.imageFileName2,
       );
   @override
   String toString() {
     return (StringBuffer('Word(')
           ..write('strQuestion: $strQuestion, ')
           ..write('strAnswer: $strAnswer, ')
-          ..write('imagePath1: $imagePath1, ')
-          ..write('imagePath2: $imagePath2')
+          ..write('imageFileName1: $imageFileName1, ')
+          ..write('imageFileName2: $imageFileName2')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(strQuestion, strAnswer, imagePath1, imagePath2);
+      Object.hash(strQuestion, strAnswer, imageFileName1, imageFileName2);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Word &&
           other.strQuestion == this.strQuestion &&
           other.strAnswer == this.strAnswer &&
-          other.imagePath1 == this.imagePath1 &&
-          other.imagePath2 == this.imagePath2);
+          other.imageFileName1 == this.imageFileName1 &&
+          other.imageFileName2 == this.imageFileName2);
 }
 
 class WordsCompanion extends UpdateCompanion<Word> {
   final Value<String> strQuestion;
   final Value<String> strAnswer;
-  final Value<String> imagePath1;
-  final Value<String> imagePath2;
+  final Value<String> imageFileName1;
+  final Value<String> imageFileName2;
   const WordsCompanion({
     this.strQuestion = const Value.absent(),
     this.strAnswer = const Value.absent(),
-    this.imagePath1 = const Value.absent(),
-    this.imagePath2 = const Value.absent(),
+    this.imageFileName1 = const Value.absent(),
+    this.imageFileName2 = const Value.absent(),
   });
   WordsCompanion.insert({
     required String strQuestion,
     required String strAnswer,
-    required String imagePath1,
-    required String imagePath2,
+    required String imageFileName1,
+    required String imageFileName2,
   })  : strQuestion = Value(strQuestion),
         strAnswer = Value(strAnswer),
-        imagePath1 = Value(imagePath1),
-        imagePath2 = Value(imagePath2);
+        imageFileName1 = Value(imageFileName1),
+        imageFileName2 = Value(imageFileName2);
   static Insertable<Word> custom({
     Expression<String>? strQuestion,
     Expression<String>? strAnswer,
-    Expression<String>? imagePath1,
-    Expression<String>? imagePath2,
+    Expression<String>? imageFileName1,
+    Expression<String>? imageFileName2,
   }) {
     return RawValuesInsertable({
       if (strQuestion != null) 'str_question': strQuestion,
       if (strAnswer != null) 'str_answer': strAnswer,
-      if (imagePath1 != null) 'image_path1': imagePath1,
-      if (imagePath2 != null) 'image_path2': imagePath2,
+      if (imageFileName1 != null) 'image_file_name1': imageFileName1,
+      if (imageFileName2 != null) 'image_file_name2': imageFileName2,
     });
   }
 
   WordsCompanion copyWith(
       {Value<String>? strQuestion,
       Value<String>? strAnswer,
-      Value<String>? imagePath1,
-      Value<String>? imagePath2}) {
+      Value<String>? imageFileName1,
+      Value<String>? imageFileName2}) {
     return WordsCompanion(
       strQuestion: strQuestion ?? this.strQuestion,
       strAnswer: strAnswer ?? this.strAnswer,
-      imagePath1: imagePath1 ?? this.imagePath1,
-      imagePath2: imagePath2 ?? this.imagePath2,
+      imageFileName1: imageFileName1 ?? this.imageFileName1,
+      imageFileName2: imageFileName2 ?? this.imageFileName2,
     );
   }
 
@@ -144,11 +144,11 @@ class WordsCompanion extends UpdateCompanion<Word> {
     if (strAnswer.present) {
       map['str_answer'] = Variable<String>(strAnswer.value);
     }
-    if (imagePath1.present) {
-      map['image_path1'] = Variable<String>(imagePath1.value);
+    if (imageFileName1.present) {
+      map['image_file_name1'] = Variable<String>(imageFileName1.value);
     }
-    if (imagePath2.present) {
-      map['image_path2'] = Variable<String>(imagePath2.value);
+    if (imageFileName2.present) {
+      map['image_file_name2'] = Variable<String>(imageFileName2.value);
     }
     return map;
   }
@@ -158,8 +158,8 @@ class WordsCompanion extends UpdateCompanion<Word> {
     return (StringBuffer('WordsCompanion(')
           ..write('strQuestion: $strQuestion, ')
           ..write('strAnswer: $strAnswer, ')
-          ..write('imagePath1: $imagePath1, ')
-          ..write('imagePath2: $imagePath2')
+          ..write('imageFileName1: $imageFileName1, ')
+          ..write('imageFileName2: $imageFileName2')
           ..write(')'))
         .toString();
   }
@@ -182,21 +182,21 @@ class $WordsTable extends Words with TableInfo<$WordsTable, Word> {
   late final GeneratedColumn<String> strAnswer = GeneratedColumn<String>(
       'str_answer', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _imagePath1Meta =
-      const VerificationMeta('imagePath1');
+  static const VerificationMeta _imageFileName1Meta =
+      const VerificationMeta('imageFileName1');
   @override
-  late final GeneratedColumn<String> imagePath1 = GeneratedColumn<String>(
-      'image_path1', aliasedName, false,
+  late final GeneratedColumn<String> imageFileName1 = GeneratedColumn<String>(
+      'image_file_name1', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _imagePath2Meta =
-      const VerificationMeta('imagePath2');
+  static const VerificationMeta _imageFileName2Meta =
+      const VerificationMeta('imageFileName2');
   @override
-  late final GeneratedColumn<String> imagePath2 = GeneratedColumn<String>(
-      'image_path2', aliasedName, false,
+  late final GeneratedColumn<String> imageFileName2 = GeneratedColumn<String>(
+      'image_file_name2', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [strQuestion, strAnswer, imagePath1, imagePath2];
+      [strQuestion, strAnswer, imageFileName1, imageFileName2];
   @override
   String get aliasedName => _alias ?? 'words';
   @override
@@ -220,21 +220,21 @@ class $WordsTable extends Words with TableInfo<$WordsTable, Word> {
     } else if (isInserting) {
       context.missing(_strAnswerMeta);
     }
-    if (data.containsKey('image_path1')) {
+    if (data.containsKey('image_file_name1')) {
       context.handle(
-          _imagePath1Meta,
-          imagePath1.isAcceptableOrUnknown(
-              data['image_path1']!, _imagePath1Meta));
+          _imageFileName1Meta,
+          imageFileName1.isAcceptableOrUnknown(
+              data['image_file_name1']!, _imageFileName1Meta));
     } else if (isInserting) {
-      context.missing(_imagePath1Meta);
+      context.missing(_imageFileName1Meta);
     }
-    if (data.containsKey('image_path2')) {
+    if (data.containsKey('image_file_name2')) {
       context.handle(
-          _imagePath2Meta,
-          imagePath2.isAcceptableOrUnknown(
-              data['image_path2']!, _imagePath2Meta));
+          _imageFileName2Meta,
+          imageFileName2.isAcceptableOrUnknown(
+              data['image_file_name2']!, _imageFileName2Meta));
     } else if (isInserting) {
-      context.missing(_imagePath2Meta);
+      context.missing(_imageFileName2Meta);
     }
     return context;
   }
@@ -249,10 +249,10 @@ class $WordsTable extends Words with TableInfo<$WordsTable, Word> {
           .read(DriftSqlType.string, data['${effectivePrefix}str_question'])!,
       strAnswer: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}str_answer'])!,
-      imagePath1: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}image_path1'])!,
-      imagePath2: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}image_path2'])!,
+      imageFileName1: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}image_file_name1'])!,
+      imageFileName2: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}image_file_name2'])!,
     );
   }
 

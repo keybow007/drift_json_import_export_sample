@@ -8,6 +8,7 @@ import 'package:my_own_frashcard/db/database.dart';
 import 'package:my_own_frashcard/models/zip_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:path/path.dart' as path;
 
 import '../main.dart';
 
@@ -39,12 +40,15 @@ class IOManager {
       final dbDataFilePath = (Platform.isIOS)
           ? appDirectory.path
           //: (await getExternalStorageDirectory())?.path;
-          : (await getExternalStorageDirectories(type: StorageDirectory.downloads))?.first.path;
+          : (await getExternalStorageDirectories(
+                  type: StorageDirectory.downloads))
+              ?.first
+              .path;
       final dbDataFile = File("$dbDataFilePath/$dbDataFileName");
       await dbDataFile.writeAsString(decodedJsonString);
 
       //---------------
-      //画像のファイルパス
+      //画像ファイル群
       final imageFiles = _getImageFiles(dbData);
 
       //DBデータと画像群を１つのzipファイルにまとめる
@@ -53,10 +57,12 @@ class IOManager {
       //ファイルをシェア（保存自体はユーザーにやってもらう）
       //Share.shareFilesは非推奨 => shareXFilesに
       //https://pub.dev/packages/share_plus
-      if (zipFile != null) await Share.shareXFiles([XFile(zipFile.path)],
-          //（注）Googleドライブの場合は「subject」がタイトル（ファイル名）になるので、
-          // ここに拡張子（zip）をいれておかないとダウンロードした際に展開できないみたい
-          text: "データをエクスポートします", subject: "output.zip");
+      if (zipFile != null)
+        await Share.shareXFiles([XFile(zipFile.path)],
+            //（注）Googleドライブの場合は「subject」がタイトル（ファイル名）になるので、
+            // ここに拡張子（zip）をいれておかないとダウンロードした際に展開できないみたい
+            text: "データをエクスポートします",
+            subject: "output.zip");
     } on Exception catch (e) {
       //本当はToastはView側で書くべき
       Fluttertoast.showToast(msg: "データのエクスポートに失敗しました: $e");
@@ -77,6 +83,7 @@ class IOManager {
 
   Future<void> importData() async {
     //外部に保存したJSONファイルをFilePickerで取得
+
     FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles();
     if (filePickerResult == null) {
       //本当はToastはView側で書くべき
@@ -130,11 +137,13 @@ class IOManager {
   List<File> _getImageFiles(List<Word> dbData) {
     var imageFiles = <File>[];
     dbData.forEach((element) {
-      if (element.imagePath1 != "") imageFiles.add(File(element.imagePath1));
-      if (element.imagePath2 != "") imageFiles.add(File(element.imagePath2));
+      if (element.imageFileName1 != "")
+        imageFiles.add(
+            File(path.join("${appDirectory.path}", element.imageFileName1)));
+      if (element.imageFileName2 != "")
+        imageFiles.add(
+            File(path.join("${appDirectory.path}", element.imageFileName2)));
     });
     return imageFiles;
   }
-
-
 }

@@ -120,11 +120,11 @@ class _EditScreenState extends State<EditScreen> {
   _insertWord() async {
     final ImageLoadManager imageLoadManager = ImageLoadManager();
     //画像をランダムに取得しよう（画像２つ）
-    final imagePath1 = await imageLoadManager.getImage(
+    final imageFileName1 = await imageLoadManager.getImage(
       key: questionController.text,
       fileIndex: 1,
     );
-    final imagePath2 = await imageLoadManager.getImage(
+    final imageFileName2 = await imageLoadManager.getImage(
       key: questionController.text,
       fileIndex: 2,
     );
@@ -149,9 +149,10 @@ class _EditScreenState extends State<EditScreen> {
               var word = Word(
                   strQuestion: questionController.text,
                   strAnswer: answerController.text,
-                  //TODO
-                  imagePath1: imagePath1,
-                  imagePath2: imagePath2);
+                  //TODO 画像のパスをそのまま入れてしまうとOSが変わった時にうまく読み込めないので
+                  // （AndroidとiOSではgetApplicationDocumentsDirectoryの絶対パスが違うので）DBにはファイル名だけ入れておいた方がいい
+                  imageFileName1: imageFileName1,
+                  imageFileName2: imageFileName2);
 
               try {
                 await database.addWord(word);

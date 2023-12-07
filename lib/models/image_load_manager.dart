@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../main.dart';
@@ -11,6 +12,13 @@ import '../main.dart';
 
 class ImageLoadManager {
 
+  /*
+  * （注）画像のパスをそのまま返すとOSを跨いだ際に画像が読み込めなくなるので
+  *   （AndroidとiOSではgetApplicationDocumentsDirectoryの絶対パスが異なるので）
+  *   DBには画像のファイル名だけを保存しておいて、パスは読み込みの際にOSに任せる形にする
+  *   （getApplicationDocumentsDirectoryに任せる）
+  *
+  * */
   Future<String> getImage({required String key, required int fileIndex}) async {
     String filePath = "";
 
@@ -29,7 +37,7 @@ class ImageLoadManager {
     } else {
       Fluttertoast.showToast(msg: "画像の取得に失敗しました: ${response.statusCode}");
     }
-    return filePath;
+    return path.basename(filePath);
   }
 
 

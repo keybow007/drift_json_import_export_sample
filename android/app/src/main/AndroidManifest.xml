@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.minpro.drift_json_import_export_sample">
 
+    <!-- Android14はこれがないと「Path not found exception」になる
+        https://developer.android.com/about/versions/14/changes/fgs-types-required?hl=ja#data-sync-->
+    <uses-permission android:minSdkVersion="34" android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
          In most cases you can leave this as-is, but you if you want to provide

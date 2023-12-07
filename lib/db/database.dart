@@ -14,8 +14,8 @@ class Words extends Table {
 
   TextColumn get strAnswer => text()();
 
-  TextColumn get imagePath1 => text()();
-  TextColumn get imagePath2 => text()();
+  TextColumn get imageFileName1 => text()();
+  TextColumn get imageFileName2 => text()();
 
   @override
   Set<Column> get primaryKey => {strQuestion};
